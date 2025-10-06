@@ -1,4 +1,4 @@
-name: Build AssetRipper
+name: Build AssetRipper for Windows
 
 on:
   push:
@@ -7,17 +7,19 @@ on:
     branches: [main, master]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build_windows:
+    # Use a Windows runner machine
+    runs-on: windows-latest
 
     steps:
     - name: Checkout source code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '7.0.x'
+        # Use the appropriate .NET version for AssetRipper (e.g., 7.0)
+        dotnet-version: '7.0.x' 
 
     - name: Restore dependencies
       run: dotnet restore
@@ -25,11 +27,13 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
 
-    - name: Publish executable
-      run: dotnet publish -c Release -o ./publish
+    - name: Publish Windows 64-bit Executable
+      # This command creates a self-contained executable for Windows x64
+      run: dotnet publish -c Release -r win-x64 --self-contained true -o ./publish/win-x64
 
-    - name: Upload build artifacts
+    - name: Upload Windows Build Artifact
+      # Using the fixed v4 of upload-artifact
       uses: actions/upload-artifact@v4
       with:
-        name: AssetRipperBuild
-        path: ./publish
+        name: AssetRipper-Windows-x64
+        path: ./publish/win-x64
